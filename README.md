@@ -85,7 +85,7 @@ Task notes/body here
     - Click the **Console** tab to see plugin log output and error messages.
 - If you see errors or missing notes, check your database path and filters.
 - If you delete a note but not the cache, the plugin will not re-import it unless you clear or rebuild the cache.
-- For more help, see the documentation site: https://your-github-username.github.io/things3-workflow/
+- For more help, see the documentation site: https://seanhumbarger.github.io/things3-workflow/
 
 ## License
 MIT. See [LICENSE](https://github.com/seanhumbarger/things3-workflow/blob/main/LICENSE).
