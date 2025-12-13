@@ -1,0 +1,71 @@
+# Node.js / npm
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build artifacts
+dist/
+build/
+esbuild/
+*.min.js
+*.min.css
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs and temp files
+logs/
+*.log
+tmp/
+temp/
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.idea
+
+# Editor backups and swaps
+*~
+*.swp
+*.swo
+*.bak
+
+# Dependency lock files (if not committed)
+# package-lock.json
+# yarn.lock
+
+# Tests and coverage
+coverage/
+.jest-cache/
+
+# Obsidian plugin specific
+.vault/  # If testing in a vault, ignore it
+.obsidian/  # Obsidian config
+
+# Miscellaneous
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

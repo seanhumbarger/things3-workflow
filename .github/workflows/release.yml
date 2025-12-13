@@ -1,0 +1,101 @@
+# GitHub Actions workflow for building, testing, releasing, and publishing docs for things3-workflow
+# - Runs on all branches, but only releases and publishes docs from main
+# - Fails if the version in manifest.json did not change from the latest tag
+
+name: Release
+
+on:
+  push:
+    branches:
+      - '**'  # Run on all branches
+
+jobs:
+  # Checks if the version in manifest.json is different from the latest tag
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version_changed: ${{ steps.check.outputs.version_changed }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version from manifest.json
+        id: manifest
+        run: |
+          VERSION=$(jq -r .version manifest.json)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Get latest tag
+        id: latest_tag
+        run: |
+          TAG=$(git tag --sort=-creatordate | head -n 1)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      - name: Compare version and tag
+        id: check
+        run: |
+          if [ "${{ steps.manifest.outputs.version }}" = "${{ steps.latest_tag.outputs.tag }}" ]; then
+            echo "Version did not change. Failing workflow."
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi
+
+  # Build, test, and release plugin artifacts (only releases from main)
+  build:
+    runs-on: ubuntu-latest
+    needs: check-version
+    if: needs.check-version.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Ensure build tools
+        run: sudo apt-get update && sudo apt-get install -y make
+      # Cache npm dependencies for faster builds
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: make install
+      - name: Run tests
+        run: make test
+      - name: Build with Makefile
+        run: make build
+      # Only create a release on main branch
+      - name: Create Release
+        if: github.ref == 'refs/heads/main' && success()
+        # https://github.com/ncipollo/release-action
+        uses: ncipollo/release-action@v1.7.3
+        with:
+          artifacts: "dist/main.js,dist/manifest.json,dist/styles.css,dist/sql-wasm.wasm"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build and deploy documentation to GitHub Pages (only from main)
+  docs:
+    runs-on: ubuntu-latest
+    needs: [build, check-version]
+    if: github.ref == 'refs/heads/main' && needs.check-version.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install docs dependencies
+        run: |
+          cd docs-site
+          npm ci
+      - name: Build Docusaurus site
+        run: |
+          cd docs-site
+          npm run build
+      # Deploy docs to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs-site/build

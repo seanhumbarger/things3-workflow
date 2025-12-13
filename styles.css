@@ -1,0 +1,34 @@
+/* Base styles for the plugin */
+.things-importer-container {
+  padding: 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  background-color: var(--background-secondary);
+}
+
+/* Settings-specific styles */
+.setting-item.things-importer-setting {
+  margin-bottom: 15px;
+}
+
+/* Modal or notice styles */
+.things-importer-modal {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Success/error feedback */
+.things-importer-success {
+  color: var(--text-success);
+  font-weight: bold;
+}
+
+.things-importer-error {
+  color: var(--text-error);
+  font-weight: bold;
+}
+
+/* Use Obsidian's CSS variables for theme compatibility */
+:root {
+  --things-importer-accent: var(--interactive-accent);
+}
