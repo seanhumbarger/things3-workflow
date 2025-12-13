@@ -51,4 +51,22 @@ describe('Things3Service', () => {
     expect(checklist[0].title).toBe('Check');
     expect(checklist[0].checked).toBe(true);
   });
+
+  it('handles undefined filter settings gracefully', () => {
+    const service = new Things3Service();
+    // @ts-expect-error purposely pass undefined
+    const filters = service["prepareFilters"]({});
+    expect(filters.tags).toEqual([]);
+    expect(filters.projects).toEqual([]);
+    expect(filters.areas).toEqual([]);
+  });
+
+  it('handles non-string filter settings gracefully', () => {
+    const service = new Things3Service();
+    // @ts-expect-error purposely pass numbers
+    const filters = service["prepareFilters"]({ filterTags: 123, filterProjects: 456, filterAreas: 789 });
+    expect(filters.tags).toEqual([]);
+    expect(filters.projects).toEqual([]);
+    expect(filters.areas).toEqual([]);
+  });
 });

@@ -31,9 +31,8 @@ export class Things3Service {
    */
   getTasks(db: Database, settings: Things3WorkflowSettings, pluginCache: CacheService): any[] {
     const { tags, projects, areas } = this.prepareFilters(settings);
-    const whereClauses = this.buildWhereClauses(tags, projects, areas);
+    const { whereClauses, params } = this.buildWhereClausesAndParams(tags, projects, areas);
     const sql = this.buildQuery(whereClauses);
-    const params = this.buildParams(tags, projects, areas);
     const allRows = this.executeQuery(db, sql, params);
     // Filter out any rows whose UUID is in the plugin cache
     return allRows.filter(row => !pluginCache.has(row.uuid));
@@ -41,38 +40,49 @@ export class Things3Service {
 
   /**
    * Parse and prepare tag, project, and area filters from plugin settings.
+   * Handles undefined or non-string values gracefully.
    *
    * @param settings Plugin settings
    * @returns Object with arrays: tags, projects, areas
    */
   private prepareFilters(settings: Things3WorkflowSettings) {
-    const tags = settings.filterTags.split(',').map(t => t.trim()).filter(Boolean);
-    const projects = settings.filterProjects.split(',').map(p => p.trim()).filter(Boolean);
-    const areas = settings.filterAreas.split(',').map(a => a.trim()).filter(Boolean);
+    // Defensive: ensure each filter is a string before splitting
+    const safeSplit = (val: unknown) =>
+      typeof val === 'string' ? val.split(',').map(t => t.trim()).filter(Boolean) : [];
+    const tags = safeSplit(settings.filterTags);
+    const projects = safeSplit(settings.filterProjects);
+    const areas = safeSplit(settings.filterAreas);
     return { tags, projects, areas };
   }
 
   /**
-   * Build SQL WHERE clauses for tag, project, and area filters.
+   * Build SQL WHERE clauses and parameters for tag, project, and area filters.
+   * Ensures the order and number of SQL placeholders matches the parameters array.
    *
    * @param tags Array of tag names
    * @param projects Array of project names
    * @param areas Array of area names
-   * @returns Array of SQL WHERE clause strings
+   * @returns Object with whereClauses and params arrays
    */
-  private buildWhereClauses(tags: string[], projects: string[], areas: string[]): string[] {
+  private buildWhereClausesAndParams(tags: string[], projects: string[], areas: string[]): { whereClauses: string[], params: any[] } {
     const whereClauses = ['TMTask.trashed = 0', 'TMTask.type = 0'];
+    const params: any[] = [];
     if (tags.length > 0) {
       whereClauses.push(`TMTask.uuid IN (SELECT TMTaskTag.tasks FROM TMTaskTag JOIN TMTag ON TMTag.uuid = TMTaskTag.tags WHERE TMTag.title IN (${tags.map(() => '?').join(',')}))`);
+      params.push(...tags);
     }
     if (projects.length > 0) {
       whereClauses.push(`TMProject.title IN (${projects.map(() => '?').join(',')})`);
+      params.push(...projects);
     }
     if (areas.length > 0) {
-      whereClauses.push(`TMArea.title IN (${areas.map(() => '?').join(',')})`);
+      whereClauses.push(`(TMArea.title IN (${areas.map(() => '?').join(',')}) OR ProjectArea.title IN (${areas.map(() => '?').join(',')}))`);
+      params.push(...areas);
+      params.push(...areas);
     }
     whereClauses.push('TMTask.uuid NOT IN (SELECT TMTaskTag.tasks FROM TMTaskTag JOIN TMTag ON TMTag.uuid = TMTaskTag.tags WHERE TMTag.title = ?)');
-    return whereClauses;
+    params.push('imported');
+    return { whereClauses, params };
   }
 
   /**
@@ -93,28 +103,18 @@ export class Things3Service {
         TMTask.deadline as deadline,
         TMArea.title as area,
         GROUP_CONCAT(TMTag.title, ', ') as tags,
-        TMProject.title as project
+        TMProject.title as project,
+        ProjectArea.title as project_area
       FROM TMTask
         LEFT JOIN TMTaskTag ON TMTaskTag.tasks = TMTask.uuid
         LEFT JOIN TMTag ON TMTag.uuid = TMTaskTag.tags
         LEFT JOIN TMArea ON TMTask.area = TMArea.uuid
         LEFT JOIN TMTask TMProject ON TMProject.uuid = TMTask.project
+        LEFT JOIN TMArea ProjectArea ON ProjectArea.uuid = TMProject.area
       WHERE ${whereClauses.join(' AND ')}
       GROUP BY TMTask.uuid
       ORDER BY TMTask.stopDate;
     `;
-  }
-
-  /**
-   * Build the array of query parameters for the SQL statement.
-   *
-   * @param tags Array of tag names
-   * @param projects Array of project names
-   * @param areas Array of area names
-   * @returns Array of parameters to bind to the SQL query
-   */
-  private buildParams(tags: string[], projects: string[], areas: string[]): any[] {
-    return [...tags, ...projects, ...areas];
   }
 
   /**

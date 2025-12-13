@@ -64,8 +64,12 @@ export class NoteWriterService {
     if (settings.includeProjectAsTag && row.project) {
       tags.push(row.project);
     }
-    if (settings.includeAreaAsTag && row.area) {
-      tags.push(row.area);
+    if (settings.includeAreaAsTag) {
+      if (row.area) {
+        tags.push(row.area);
+      } else if (row.project_area) {
+        tags.push(row.project_area);
+      }
     }
     // Add custom tags from settings
     if (settings.customTags) {
@@ -77,7 +81,6 @@ export class NoteWriterService {
     const thingsLink = `things:///show?id=${row.uuid}`;
     const thingsCreatedDate = coreDataAbsoluteToISO(row.creationDate) || coreDataAbsoluteToISO(row.startDate) || '';
     const deadlineISO = coreDataAbsoluteToISO(row.deadline);
-    console.log('[NoteWriterService] Row deadline before conversion:', row.deadline, 'after conversion:', deadlineISO);
     const startDateISO = coreDataAbsoluteToISO(row.startDate);
     const endDateISO = coreDataAbsoluteToISO(row.stopDate);
     const t3Status = row.status || '';
@@ -105,7 +108,7 @@ export class NoteWriterService {
     }
 
     if (checklist && Array.isArray(checklist) && checklist.length > 0) {
-      content += `\n\n**${checklistHeader}:**`;
+      content += `\n\n# ${checklistHeader}`;
       for (const item of checklist) {
         const checked = item.checked ? '[x]' : '[ ]';
         content += `\n- ${checked} ${item.title}`;

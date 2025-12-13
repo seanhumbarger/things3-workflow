@@ -39,6 +39,8 @@ build:
 	cp manifest.json dist/
 	@if [ -f styles.css ]; then cp styles.css dist/; fi
 	cp node_modules/sql.js/dist/sql-wasm.wasm dist/
+	mkdir -p "/Users/sean.humbarger/Library/Mobile Documents/iCloud~md~obsidian/Documents/plugin-test/.obsidian/plugins/things3-workflow"
+	cp dist/* "/Users/sean.humbarger/Library/Mobile Documents/iCloud~md~obsidian/Documents/plugin-test/.obsidian/plugins/things3-workflow/"
 
 # Copy build artifacts to root for manual install (optional, if needed)
 copy-artifacts:

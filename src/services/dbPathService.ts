@@ -196,7 +196,7 @@ export class DbPathService {
    * @returns The resolved dbPath or undefined
    */
   private _resolveFromFallback(): string | undefined {
-    const fallback = path.join(os.homedir(), 'Library', 'Group Containers', 'JLMPQHK86F.com.culturedcode.ThingsMac', 'ThingsData-UTC1Z', 'Things Database.thingsdatabase', 'main.sqlite');
+    const fallback = path.join(os.homedir(), 'Library', 'Group Containers', 'JLMPQHK86H.com.culturedcode.ThingsMac', 'ThingsData-UTC1Z', 'Things Database.thingsdatabase', 'main.sqlite');
     if (this._isUsableSQLiteFile(fallback)) {
       console.log('[DbPathService] Using fallback dbPath:', fallback);
       return fallback;
@@ -206,3 +206,4 @@ export class DbPathService {
     }
   }
 }
+

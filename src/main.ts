@@ -82,6 +82,9 @@ export default class Things3WorkflowPlugin extends Plugin {
    */
   async loadSettings() {
     this.settings = Object.assign({}, await this.loadData());
+    if (!this.settings.destinationFolder) {
+      this.settings.destinationFolder = 'things3';
+    }
     console.log('[Things3 Workflow] Settings loaded:', this.settings);
   }
 
