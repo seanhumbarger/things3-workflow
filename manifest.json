@@ -4,6 +4,6 @@
   "name": "Things3 Workflow",
   "isDesktopOnly": true,
   "minAppVersion": "0.15.0",
-  "description": "Import your things3 tasks into obsidian notes.",
+  "description": "Import your things3 tasks into your notes.",
   "author": "Sean Humbarger"
 }

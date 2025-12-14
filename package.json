@@ -1,7 +1,7 @@
 {
   "name": "things3-workflow",
   "version": "0.1.0",
-  "description": "Import your things3 tasks into obsidian notes.",
+  "description": "Import your things3 tasks into your notes.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs --watch",
