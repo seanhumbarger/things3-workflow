@@ -4,6 +4,6 @@
   "name": "Things3 Workflow",
   "isDesktopOnly": true,
   "minAppVersion": "0.15.0",
-  "description": "Import tasks from the Things3 SQLite database into Obsidian notes. Supports filtering by tags, projects, and areas, custom note headers, custom tags, project/area as tags, checklist and body import, date metadata, and a local cache to prevent duplicate imports. Uses sql.js for compatibility and is desktop-only.",
+  "description": "Import your things3 tasks into obsidian notes.",
   "author": "Sean Humbarger"
 }

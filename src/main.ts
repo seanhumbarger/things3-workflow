@@ -41,7 +41,7 @@ export default class Things3WorkflowPlugin extends Plugin {
     this.addSettingTab(new Things3WorkflowSettingTab(this.app, this));
     this.addCommand({
       id: 'run-things-importer',
-      name: 'Import from Things',
+      name: 'Import',
       callback: () => {
         console.log('[Things3 Workflow] Command palette invoked');
         runImporter(this);
@@ -49,7 +49,7 @@ export default class Things3WorkflowPlugin extends Plugin {
     });
     this.addCommand({
       id: 'clear-things-importer-cache',
-      name: 'Clear Things3 Workflow Cache',
+      name: 'Clear cache',
       callback: async () => {
         const cache = new CacheService(this);
         await cache.load();
@@ -60,7 +60,7 @@ export default class Things3WorkflowPlugin extends Plugin {
     });
     this.addCommand({
       id: 'rebuild-things-importer-cache',
-      name: 'Rebuild Things3 Workflow Cache (without importing)',
+      name: 'Rebuild cache',
       callback: async () => {
         const { rebuildCacheOnly } = await import('./services/importerService');
         await rebuildCacheOnly(this);

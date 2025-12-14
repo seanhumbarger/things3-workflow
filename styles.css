@@ -32,3 +32,45 @@
 :root {
   --things-importer-accent: var(--interactive-accent);
 }
+
+.things3wf-desc {
+  margin: 0.5em 0 1.5em 0;
+  font-size: 1.05em;
+  color: var(--text-muted);
+}
+
+.things3wf-coffee-row {
+  display: flex;
+  justify-content: left;
+  margin: 1em 0 2em 0;
+}
+
+.things3wf-coffee-btn {
+  font-weight: bold;
+  font-size: 1.15em;
+  background: var(--color-accent-yellow, #FFDD00);
+  color: var(--text-normal, #222);
+  padding: 0.5em 1.5em;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.things3wf-coffee-btn:hover {
+  background: var(--color-accent-yellow-hover, #ffe066);
+}
+
+.things3wf-github-btn {
+  font-weight: bold;
+  font-size: 1.15em;
+  background: var(--background-secondary, #24292f);
+  color: var(--text-on-accent, #fff);
+  padding: 0.5em 1.5em;
+  border-radius: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.things3wf-github-btn:hover {
+  background: var(--background-secondary-alt, #444c56);
+}

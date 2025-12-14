@@ -82,60 +82,34 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     issueLink.style.textDecoration = 'underline';
 
     // --- Short description ---
-    const descDiv = containerEl.createDiv();
-    descDiv.style.margin = '0.5em 0 1.5em 0';
-    descDiv.style.fontSize = '1.05em';
-    descDiv.style.color = '#555';
+    const descDiv = containerEl.createDiv({ cls: 'things3wf-desc' });
     descDiv.setText(PLUGIN_DESCRIPTION);
 
     // --- Buy Me a Coffee link styled as a button ---
-    const coffeeDiv = containerEl.createDiv();
-    coffeeDiv.style.display = 'flex';
-    coffeeDiv.style.justifyContent = 'left';
-    coffeeDiv.style.margin = '1em 0 2em 0';
+    const coffeeDiv = containerEl.createDiv({ cls: 'things3wf-coffee-row' });
     // Buy Me a Coffee button
     const coffeeLink = coffeeDiv.createEl('a', {
       text: '☕ Buy Me a Coffee',
       href: PLUGIN_BUYMECOFFEE_URL,
+      cls: 'things3wf-coffee-btn',
     });
     coffeeLink.target = '_blank';
     coffeeLink.rel = 'noopener';
-    coffeeLink.style.fontWeight = 'bold';
-    coffeeLink.style.fontSize = '1.15em';
-    coffeeLink.style.background = '#FFDD00';
-    coffeeLink.style.color = '#222';
-    coffeeLink.style.padding = '0.5em 1.5em';
-    coffeeLink.style.borderRadius = '24px';
-    coffeeLink.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-    coffeeLink.style.textDecoration = 'none';
-    coffeeLink.style.transition = 'background 0.2s';
-    coffeeLink.onmouseover = () => coffeeLink.style.background = '#ffe066';
-    coffeeLink.onmouseout = () => coffeeLink.style.background = '#FFDD00';
     // GitHub button styled similarly
     const githubLink = coffeeDiv.createEl('a', {
       text: '⭐ GitHub',
       href: 'https://github.com/seanhumbarger/things3-workflow',
+      cls: 'things3wf-github-btn',
     });
     githubLink.target = '_blank';
     githubLink.rel = 'noopener';
-    githubLink.style.fontWeight = 'bold';
-    githubLink.style.fontSize = '1.15em';
-    githubLink.style.background = '#24292f';
-    githubLink.style.color = '#fff';
-    githubLink.style.padding = '0.5em 1.5em';
-    githubLink.style.borderRadius = '24px';
-    githubLink.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
-    githubLink.style.textDecoration = 'none';
-    githubLink.style.marginLeft = '1em';
-    githubLink.style.transition = 'background 0.2s';
-    githubLink.onmouseover = () => githubLink.style.background = '#444c56';
-    githubLink.onmouseout = () => githubLink.style.background = '#24292f';
+    githubLink.style.marginLeft = '1em'; // Only margin, as this is layout, not theme
 
     // --- Database Section ---
-    containerEl.createEl('h3', { text: 'Database' });
+    new Setting(containerEl).setName('Database').setHeading();
     new Setting(containerEl)
-      .setName('Database Path')
-      .setDesc('Path to your Things3 SQLite database file (auto detected if not set)')
+      .setName('Database path')
+      .setDesc('Path to your things3 sqlite database file (auto detected if not set)')
       .addText(text => text
         .setPlaceholder('~/Library/.../main.sqlite')
         .setValue(this.plugin.settings.databasePath || DEFAULT_SETTINGS.databasePath)
@@ -145,9 +119,9 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     // --- Filters Section ---
-    containerEl.createEl('h3', { text: 'Filters' });
+    new Setting(containerEl).setName('Filters').setHeading();
     new Setting(containerEl)
-      .setName('Filter Tags')
+      .setName('Tags')
       .setDesc('Comma-separated list of tags to import (leave blank for all)')
       .addText(text => text
         .setValue(this.plugin.settings.filterTags || DEFAULT_SETTINGS.filterTags)
@@ -157,7 +131,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Filter Projects')
+      .setName('Projects')
       .setDesc('Comma-separated list of projects to import (leave blank for all)')
       .addText(text => text
         .setValue(this.plugin.settings.filterProjects || DEFAULT_SETTINGS.filterProjects)
@@ -167,7 +141,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Filter Areas')
+      .setName('Areas')
       .setDesc('Comma-separated list of areas to import (leave blank for all)')
       .addText(text => text
         .setValue(this.plugin.settings.filterAreas || DEFAULT_SETTINGS.filterAreas)
@@ -177,9 +151,9 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     // --- On Import Section ---
-    containerEl.createEl('h3', { text: 'On Import' });
+    new Setting(containerEl).setName('Import').setHeading();
     new Setting(containerEl)
-      .setName('Destination Folder')
+      .setName('Destination folder')
       .setDesc('Folder in your vault to save imported notes (defaults to vault root if not set)')
       .addText(text => text
         .setValue(this.plugin.settings.destinationFolder || DEFAULT_SETTINGS.destinationFolder)
@@ -189,7 +163,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Include Project as Tag')
+      .setName('Include project as tag')
       .setDesc('Add the project as a tag to imported notes.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.includeProjectAsTag)
@@ -199,7 +173,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Include Area as Tag')
+      .setName('Include area as tag')
       .setDesc('Add the area as a tag to imported notes.')
       .addToggle(toggle => toggle
         .setValue(this.plugin.settings.includeAreaAsTag)
@@ -209,8 +183,8 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Note Section Header')
-      .setDesc('Header for the main note section (default: Note)')
+      .setName('Note section header')
+      .setDesc('Header for the main note section')
       .addText(text => text
         .setPlaceholder('Note')
         .setValue(this.plugin.settings.noteSectionHeader || 'Note')
@@ -220,8 +194,8 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Details Section Header')
-      .setDesc('Header for the details section (default: Details)')
+      .setName('Details section header')
+      .setDesc('Header for the details section')
       .addText(text => text
         .setPlaceholder('Details')
         .setValue(this.plugin.settings.detailsSectionHeader || 'Details')
@@ -231,8 +205,8 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Checklist Section Header')
-      .setDesc('Header for the checklist section (default: Checklist)')
+      .setName('Checklist section header')
+      .setDesc('Header for the checklist section')
       .addText(text => text
         .setPlaceholder('Checklist')
         .setValue(this.plugin.settings.checklistSectionHeader || 'Checklist')
@@ -243,9 +217,8 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Custom Tags')
-      .setDesc('Comma-separated list of tags to add to every imported note (optional, de-duplicated)')
+      .setDesc('Comma-separated list of tags to add to every imported note')
       .addText(text => text
-        .setPlaceholder('imported, things3')
         .setValue((this.plugin.settings.customTags ?? DEFAULT_SETTINGS.customTags) as string)
         .onChange(async (value) => {
           this.plugin.settings.customTags = value;
