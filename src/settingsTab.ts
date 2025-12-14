@@ -1,7 +1,45 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, AbstractInputSuggest, TFolder, SearchComponent } from 'obsidian';
 import Things3WorkflowPlugin from './main';
 import { DEFAULT_SETTINGS } from './settings';
 import { PLUGIN_AUTHOR, PLUGIN_DOCS_URL, PLUGIN_ISSUE_URL, PLUGIN_BUYMECOFFEE_URL, PLUGIN_NAME, PLUGIN_DESCRIPTION } from './pluginMeta';
+
+/**
+ * FolderSuggest
+ *
+ * Custom suggester for selecting folders in the vault, including root as '/'.
+ * Extends AbstractInputSuggest to provide dropdown suggestions on input focus.
+ */
+class FolderSuggest extends AbstractInputSuggest<string> {
+  private folders: string[];
+  private input: HTMLInputElement;
+
+  constructor(app: App, inputEl: HTMLInputElement) {
+    super(app, inputEl);
+    this.input = inputEl;
+    this.folders = this.app.vault.getAllLoadedFiles()
+      .filter((file): file is TFolder => file instanceof TFolder)
+      .map(folder => folder.path);
+  }
+
+  getSuggestions(inputStr: string): string[] {
+    const lowerCaseInputStr = inputStr.toLowerCase();
+    return this.folders
+      .map(path => ({ original: path, display: path === '' ? '/' : path }))
+      .filter(({ display }) => display.toLowerCase().includes(lowerCaseInputStr))
+      .map(({ display }) => display);
+  }
+
+  renderSuggestion(value: string, el: HTMLElement): void {
+    el.setText(value);
+  }
+
+  selectSuggestion(value: string): void {
+    const original = value === '/' ? '' : value;
+    this.input.value = original;
+    this.input.dispatchEvent(new Event('input', { bubbles: true }));
+    this.close();
+  }
+}
 
 /**
  * Things3WorkflowSettingTab
@@ -155,12 +193,16 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName('Destination folder')
       .setDesc('Folder in your vault to save imported notes (defaults to vault root if not set)')
-      .addText(text => text
-        .setValue(this.plugin.settings.destinationFolder || DEFAULT_SETTINGS.destinationFolder)
-        .onChange(async (value) => {
-          this.plugin.settings.destinationFolder = value;
-          await this.plugin.saveSettings();
-        }));
+      .addSearch(search => {
+        search
+          .setPlaceholder('Example: folder/subfolder (or / for root)')
+          .setValue(this.plugin.settings.destinationFolder || DEFAULT_SETTINGS.destinationFolder)
+          .onChange(async (value) => {
+            this.plugin.settings.destinationFolder = value;
+            await this.plugin.saveSettings();
+          });
+        new FolderSuggest(this.app, search.inputEl);
+      });
 
     new Setting(containerEl)
       .setName('Include project as tag')
