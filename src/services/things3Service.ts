@@ -101,6 +101,7 @@ export class Things3Service {
         TMTask.stopDate as stopDate,
         TMTask.status as status,
         TMTask.deadline as deadline,
+        TMTask.creationDate as creationDate,
         TMArea.title as area,
         GROUP_CONCAT(TMTag.title, ', ') as tags,
         TMProject.title as project,
