@@ -7,7 +7,7 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'  # Run only on version tag pushes (e.g., v1.2.3)
+      - '*'  # Run only on version tag pushes (e.g., v1.2.3)
 
 jobs:
   build:
