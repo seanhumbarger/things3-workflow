@@ -1,11 +1,9 @@
 {
-    "id": "things3-workflow",
-    "name": "Things3 Workflow",
-    "version": "0.1.0",
-    "minAppVersion": "1.5.0",
-    "description": "Import your things3 tasks into your notes.",
-    "author": "Sean Humbarger",
-    "authorUrl": "https://www.linkedin.com/in/seanhumbarger/",
-    "helpUrl": "https://seanhumbarger.github.io/things3-workflow/",
-    "isDesktopOnly": true
+  "id": "things3-workflow",
+  "version": "0.1.0",
+  "name": "Things3 Workflow",
+  "isDesktopOnly": true,
+  "minAppVersion": "1.5.0",
+  "description": "Import your things3 tasks into your notes.",
+  "author": "Sean Humbarger"
 }
