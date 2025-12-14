@@ -216,7 +216,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
         }));
 
     new Setting(containerEl)
-      .setName('Custom Tags')
+      .setName('Custom tags')
       .setDesc('Comma-separated list of tags to add to every imported note')
       .addText(text => text
         .setValue((this.plugin.settings.customTags ?? DEFAULT_SETTINGS.customTags) as string)
