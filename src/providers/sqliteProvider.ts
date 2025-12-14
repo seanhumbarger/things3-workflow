@@ -42,7 +42,7 @@ export class SqliteProvider {
       this.SQL = await initSqlJs({ locateFile: () => wasmUrl });
       const fileBuffer = fs.readFileSync(dbPath);
       const db = new this.SQL.Database(fileBuffer);
-      console.log('[SqliteProvider] Database opened with sql.js');
+      // console.log('[SqliteProvider] Database opened with sql.js');
       return db;
     } catch (err) {
       console.error('[SqliteProvider] Failed to open database with sql.js:', err);

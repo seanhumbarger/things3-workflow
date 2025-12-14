@@ -88,7 +88,7 @@ export async function runImporter(plugin: Plugin) {
     // --- Save the modified database back to disk ---
     const dbBuffer = db.export();
     fs.writeFileSync(dbPath, dbBuffer);
-    console.log('[Things3 Workflow] Database changes saved to disk.');
+    // console.log('[Things3 Workflow] Database changes saved to disk.');
   } finally {
     db.close();
   }

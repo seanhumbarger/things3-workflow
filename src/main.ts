@@ -43,7 +43,7 @@ export default class Things3WorkflowPlugin extends Plugin {
       id: 'run-things-importer',
       name: 'Import',
       callback: () => {
-        console.log('[Things3 Workflow] Command palette invoked');
+        // console.log('[Things3 Workflow] Command palette invoked');
         runImporter(this);
       },
     });
@@ -85,7 +85,7 @@ export default class Things3WorkflowPlugin extends Plugin {
     if (!this.settings.destinationFolder) {
       this.settings.destinationFolder = 'things3';
     }
-    console.log('[Things3 Workflow] Settings loaded:', this.settings);
+    // console.log('[Things3 Workflow] Settings loaded:', this.settings);
   }
 
   /**
@@ -93,6 +93,6 @@ export default class Things3WorkflowPlugin extends Plugin {
    */
   async saveSettings() {
     await this.saveData(this.settings);
-    console.log('[Things3 Workflow] Settings saved');
+    // console.log('[Things3 Workflow] Settings saved');
   }
 }

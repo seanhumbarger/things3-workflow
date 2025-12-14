@@ -118,12 +118,12 @@ export class DbPathService {
     let resolvedPath = dbPath;
     if (dbPath.startsWith('~')) {
       resolvedPath = path.join(os.homedir(), dbPath.slice(1));
-      console.log('[DbPathService] Interpreted ~ in configuredPath:', resolvedPath);
+      // console.log('[DbPathService] Interpreted ~ in configuredPath:', resolvedPath);
     } else {
-      console.log('[DbPathService] Using literal configuredPath:', resolvedPath);
+      // console.log('[DbPathService] Using literal configuredPath:', resolvedPath);
     }
     if (this._isUsableSQLiteFile(resolvedPath)) {
-      console.log('[DbPathService] Found valid dbPath from configuredPath:', resolvedPath);
+      // console.log('[DbPathService] Found valid dbPath from configuredPath:', resolvedPath);
       return resolvedPath;
     } else {
       console.error('[DbPathService] ConfiguredPath is not a valid SQLite file or lacks permission:', resolvedPath);
@@ -139,13 +139,13 @@ export class DbPathService {
    */
   private _resolveFromDirectory(directory: string): string | undefined {
     const trimmedDir = directory.trim();
-    console.log('[DbPathService] Checking directory for ThingsData-*:', trimmedDir);
+    // console.log('[DbPathService] Checking directory for ThingsData-*:', trimmedDir);
     if (!fs.existsSync(trimmedDir) || !fs.statSync(trimmedDir).isDirectory()) {
       console.error('[DbPathService] Directory does not exist or is not a directory:', trimmedDir);
       return undefined;
     }
     const subdirs = fs.readdirSync(trimmedDir).filter(d => d.startsWith('ThingsData-'));
-    console.log('[DbPathService] Found ThingsData-* subdirs:', subdirs);
+    // console.log('[DbPathService] Found ThingsData-* subdirs:', subdirs);
     if (subdirs.length === 0) {
       console.error('[DbPathService] No ThingsData-* subdirs found');
       return undefined;
@@ -153,7 +153,7 @@ export class DbPathService {
     if (subdirs.length === 1) {
       const candidate = path.join(trimmedDir, subdirs[0], 'main.sqlite');
       if (this._isUsableSQLiteFile(candidate)) {
-        console.log('[DbPathService] Found valid dbPath from directory:', candidate);
+        // console.log('[DbPathService] Found valid dbPath from directory:', candidate);
         return candidate;
       } else {
         console.error('[DbPathService] main.sqlite not valid or lacks permission in subdir:', candidate);
@@ -184,7 +184,7 @@ export class DbPathService {
       }
     }
     if (bestDir) {
-      console.log('[DbPathService] Resolved ambiguous ThingsData-* to:', bestDir);
+      // console.log('[DbPathService] Resolved ambiguous ThingsData-* to:', bestDir);
       return bestDir;
     }
     console.error('[DbPathService] Could not resolve ambiguous ThingsData-* directories');
@@ -198,7 +198,7 @@ export class DbPathService {
   private _resolveFromFallback(): string | undefined {
     const fallback = path.join(os.homedir(), 'Library', 'Group Containers', 'JLMPQHK86H.com.culturedcode.ThingsMac', 'ThingsData-UTC1Z', 'Things Database.thingsdatabase', 'main.sqlite');
     if (this._isUsableSQLiteFile(fallback)) {
-      console.log('[DbPathService] Using fallback dbPath:', fallback);
+      // console.log('[DbPathService] Using fallback dbPath:', fallback);
       return fallback;
     } else {
       console.error('[DbPathService] Fallback dbPath not valid or lacks permission:', fallback);
@@ -206,4 +206,3 @@ export class DbPathService {
     }
   }
 }
-
