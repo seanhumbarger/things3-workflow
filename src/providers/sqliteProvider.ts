@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import initSqlJs, { Database } from 'sql.js';
+import initSqlJs, { SqlJsStatic } from 'sql.js';
 import { Plugin, normalizePath } from 'obsidian';
 
 /**
@@ -23,7 +23,7 @@ import { Plugin, normalizePath } from 'obsidian';
  * @class SqliteProvider
  */
 export class SqliteProvider {
-  private SQL: any = null;
+  private SQL: SqlJsStatic | null = null;
 
   /**
    * Opens a SQLite database using sql.js, given a file path and a WASM URL.
@@ -31,17 +31,22 @@ export class SqliteProvider {
    *
    * @param dbPath Path to the SQLite database file
    * @param wasmUrl URL to the sql-wasm.wasm file (WebAssembly binary for sql.js)
-   * @returns Promise<Database> The opened sql.js Database instance
+   * @returns Promise<any> The opened sql.js Database instance (typed as any due to incomplete sql.js typings)
    *
    * The WASM file is required by sql.js to run SQLite in the browser or in environments like Obsidian plugins.
    * WebAssembly (WASM) is a binary instruction format that allows running high-performance code (like SQLite) in JavaScript environments.
    * The wasmUrl should point to the location of the sql-wasm.wasm file bundled with your plugin.
+   *
+   * Note: The sql.js typings do not provide a constructable Database type, so we use 'any' here for compatibility.
    */
-  async openDatabase(dbPath: string, wasmUrl: string): Promise<Database> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sql.js typings require 'any' for Database instance
+  async openDatabase(dbPath: string, wasmUrl: string): Promise<any> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sql.js typings require 'any' for SqlJsStatic
       this.SQL = await initSqlJs({ locateFile: () => wasmUrl });
       const fileBuffer = fs.readFileSync(dbPath);
-      const db = new this.SQL.Database(fileBuffer);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sql.js Database constructor requires 'any' due to missing construct signature in typings
+      const db = new (this.SQL as any).Database(fileBuffer);
       // console.log('[SqliteProvider] Database opened with sql.js');
       return db;
     } catch (err) {

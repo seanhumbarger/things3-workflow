@@ -29,11 +29,10 @@
  * @module importer
  */
 
-import { Plugin, normalizePath } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { Things3WorkflowSettings } from '../settings';
 import * as fs from 'fs';
 import { DbPathService } from './dbPathService';
-import { Database } from 'sql.js';
 import { SqliteProvider } from '../providers/sqliteProvider';
 import { Things3Service } from './things3Service';
 import { NoteWriterService } from './noteWriterService';
@@ -86,7 +85,7 @@ export async function runImporter(plugin: Plugin) {
       await noteWriter.writeNote(plugin, row, settings, db, pluginCache, thingsService);
     }
     // --- Save the modified database back to disk ---
-    const dbBuffer = db.export();
+    const dbBuffer = (db as any).export() as Uint8Array;
     fs.writeFileSync(dbPath, dbBuffer);
     // console.log('[Things3 Workflow] Database changes saved to disk.');
   } finally {

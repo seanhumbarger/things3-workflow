@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting, AbstractInputSuggest, TFolder, SearchComponent } from 'obsidian';
+import { App, PluginSettingTab, Setting, AbstractInputSuggest, TFolder } from 'obsidian';
 import Things3WorkflowPlugin from './main';
 import { DEFAULT_SETTINGS } from './settings';
 import { PLUGIN_AUTHOR, PLUGIN_DOCS_URL, PLUGIN_ISSUE_URL, PLUGIN_BUYMECOFFEE_URL, PLUGIN_NAME, PLUGIN_DESCRIPTION } from './pluginMeta';

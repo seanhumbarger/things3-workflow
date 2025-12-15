@@ -20,7 +20,7 @@
  * @class Things3WorkflowPlugin
  * @extends Plugin
  */
-import { Plugin } from 'obsidian';
+import { Plugin, Notice } from 'obsidian';
 import { runImporter } from './services/importerService';
 import { Things3WorkflowSettings } from './settings';
 import { Things3WorkflowSettingTab } from './settingsTab';
@@ -54,8 +54,7 @@ export default class Things3WorkflowPlugin extends Plugin {
         const cache = new CacheService(this);
         await cache.load();
         await cache.clear();
-        // @ts-ignore
-        this.app?.notifications?.show('Things3 Workflow cache cleared!') || new (window as any).Notice('Things3 Workflow cache cleared!');
+        new Notice('Things3 Workflow cache cleared!');
       },
     });
     this.addCommand({
@@ -64,8 +63,7 @@ export default class Things3WorkflowPlugin extends Plugin {
       callback: async () => {
         const { rebuildCacheOnly } = await import('./services/importerService');
         await rebuildCacheOnly(this);
-        // @ts-ignore
-        this.app?.notifications?.show('Things3 Workflow cache rebuilt!') || new (window as any).Notice('Things3 Workflow cache rebuilt!');
+        new Notice('Things3 Workflow cache rebuilt!');
       },
     });
     // Optionally, schedule background import every 30 minutes

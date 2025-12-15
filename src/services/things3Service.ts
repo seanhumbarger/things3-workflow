@@ -152,7 +152,7 @@ export class Things3Service {
     while (stmt.step()) {
       const item = stmt.getAsObject();
       checklist.push({
-        title: item.title,
+        title: String(item.title),
         checked: item.status === 3 // 3 = checked, 0 = unchecked in Things3
       });
     }
