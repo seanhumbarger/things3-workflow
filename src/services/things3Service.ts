@@ -3,6 +3,24 @@ import { Things3WorkflowSettings } from '../settings';
 import { CacheService } from './cacheService';
 
 /**
+ * Represents a row returned from the Things3 task query.
+ */
+export interface Things3TaskRow {
+  uuid: string;
+  title: string;
+  notes: string;
+  startDate: number | null;
+  stopDate: number | null;
+  status: number;
+  deadline: number | null;
+  creationDate: number | null;
+  area: string | null;
+  tags: string | null;
+  project: string | null;
+  project_area: string | null;
+}
+
+/**
  * Things3Service
  *
  * Provides methods to query and filter Things3 tasks from the SQLite database according to plugin settings and cache state.
@@ -29,7 +47,7 @@ export class Things3Service {
    * @param pluginCache CacheService instance
    * @returns Array of task rows (each row is an object with task fields)
    */
-  getTasks(db: Database, settings: Things3WorkflowSettings, pluginCache: CacheService): any[] {
+  getTasks(db: Database, settings: Things3WorkflowSettings, pluginCache: CacheService): Things3TaskRow[] {
     const { tags, projects, areas } = this.prepareFilters(settings);
     const { whereClauses, params } = this.buildWhereClausesAndParams(tags, projects, areas);
     const sql = this.buildQuery(whereClauses);
@@ -64,9 +82,9 @@ export class Things3Service {
    * @param areas Array of area names
    * @returns Object with whereClauses and params arrays
    */
-  private buildWhereClausesAndParams(tags: string[], projects: string[], areas: string[]): { whereClauses: string[], params: any[] } {
+  private buildWhereClausesAndParams(tags: string[], projects: string[], areas: string[]): { whereClauses: string[]; params: string[] } {
     const whereClauses = ['TMTask.trashed = 0', 'TMTask.type = 0'];
-    const params: any[] = [];
+    const params: string[] = [];
     if (tags.length > 0) {
       whereClauses.push(`TMTask.uuid IN (SELECT TMTaskTag.tasks FROM TMTaskTag JOIN TMTag ON TMTag.uuid = TMTaskTag.tags WHERE TMTag.title IN (${tags.map(() => '?').join(',')}))`);
       params.push(...tags);
@@ -126,13 +144,13 @@ export class Things3Service {
    * @param params Array of parameters to bind
    * @returns Array of result rows (objects)
    */
-  private executeQuery(db: Database, sql: string, params: any[]): any[] {
+  private executeQuery(db: Database, sql: string, params: string[]): Things3TaskRow[] {
     const stmt = db.prepare(sql);
     stmt.bind(params);
-    const rows: any[] = [];
+    const rows: Things3TaskRow[] = [];
     // console.log(sql);
     while (stmt.step()) {
-      rows.push(stmt.getAsObject());
+      rows.push(stmt.getAsObject() as unknown as Things3TaskRow);
     }
     stmt.free();
     return rows;

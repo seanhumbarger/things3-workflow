@@ -1,8 +1,23 @@
 import { Plugin, normalizePath, TFile } from 'obsidian';
 import { Things3WorkflowSettings } from '../settings';
 import { Database } from 'sql.js';
-import { v4 as uuidv4 } from 'uuid';
 import { CacheService } from './cacheService';
+import { Things3TaskRow } from './things3Service';
+
+/**
+ * Checklist item type for Things3 tasks
+ */
+export interface ChecklistItem {
+  title: string;
+  checked: boolean;
+}
+
+/**
+ * Minimal interface for Things3Service used by NoteWriterService
+ */
+export interface IThings3Service {
+  getChecklistItemsByTask(db: Database, uuid: string): ChecklistItem[];
+}
 
 /**
  * NoteWriterService
@@ -34,17 +49,24 @@ export class NoteWriterService {
    * @param pluginCache CacheService instance for tracking imports
    * @param thingsService Things3Service instance for checklist queries
    */
-  async writeNote(plugin: Plugin, row: any, settings: Things3WorkflowSettings, db: Database, pluginCache: CacheService, thingsService: any) {
+  async writeNote(
+    plugin: Plugin,
+    row: Things3TaskRow,
+    settings: Things3WorkflowSettings,
+    db: Database,
+    pluginCache: CacheService,
+    thingsService: IThings3Service
+  ): Promise<void> {
     // Fetch checklist items for this task
-    const checklist = thingsService.getChecklistItemsByTask(db, row.uuid);
-    const { frontmatter, content } = this.prepareContent(row, settings, checklist);
+    const checklist: ChecklistItem[] = thingsService.getChecklistItemsByTask(db, String(row.uuid));
+    const { content } = this.prepareContent(row, settings, checklist);
     const { filePath, folder } = this.prepareFilePath(row, settings);
     if (!(await this.ensureFolder(plugin, folder))) return;
     if (!this.isValidFilePath(filePath, row)) return;
-    if (!(await this.createFile(plugin, filePath, content, row))) return;
+    if (!(await this.createFile(plugin, filePath, content))) return;
     // Add to plugin cache instead of marking in Things DB
     await pluginCache.load();
-    pluginCache.add(row.uuid, { importedAt: new Date().toISOString(), filePath });
+    pluginCache.add(String(row.uuid), { importedAt: new Date().toISOString(), filePath });
     await pluginCache.save();
   }
 
@@ -55,7 +77,11 @@ export class NoteWriterService {
    * @param checklist Checklist items for the task
    * @returns Object with frontmatter and content strings
    */
-  private prepareContent(row: any, settings: Things3WorkflowSettings, checklist: { title: string; checked: boolean }[]) {
+  private prepareContent(
+    row: Things3TaskRow,
+    settings: Things3WorkflowSettings,
+    checklist: ChecklistItem[]
+  ): { frontmatter: string; content: string } {
     // Build tags: existing tags, plus project/area if enabled, plus custom tags
     let tags: string[] = [];
     if (row.tags) {
@@ -77,12 +103,11 @@ export class NoteWriterService {
     }
     // Remove duplicates and empty
     tags = Array.from(new Set(tags)).filter(Boolean);
-    const tagString = tags.map(tag => `#${tag.replace(/\s+/g, '')}`).join(' ');
     const thingsLink = `things:///show?id=${row.uuid}`;
-    const thingsCreatedDate = coreDataAbsoluteToISO(row.creationDate) || coreDataAbsoluteToISO(row.startDate) || '';
-    const deadlineISO = coreDataAbsoluteToISO(row.deadline);
-    const startDateISO = coreDataAbsoluteToISO(row.startDate);
-    const endDateISO = coreDataAbsoluteToISO(row.stopDate);
+    const thingsCreatedDate = coreDataAbsoluteToISO(row.creationDate ?? undefined) || coreDataAbsoluteToISO(row.startDate ?? undefined) || '';
+    const deadlineISO = coreDataAbsoluteToISO(row.deadline ?? undefined);
+    const startDateISO = coreDataAbsoluteToISO(row.startDate ?? undefined);
+    const endDateISO = coreDataAbsoluteToISO(row.stopDate ?? undefined);
     const t3Status = row.status || '';
     const frontmatter = [
       '---',
@@ -123,12 +148,15 @@ export class NoteWriterService {
    * @param settings Plugin settings
    * @returns Object with filePath and folder
    */
-  private prepareFilePath(row: any, settings: Things3WorkflowSettings) {
-    const safeTitle = (row.title && typeof row.title === 'string' && row.title.trim().length > 0)
+  private prepareFilePath(
+    row: Things3TaskRow,
+    settings: Things3WorkflowSettings
+  ): { filePath: string; folder: string } {
+    const safeTitle = (row.title && row.title.trim().length > 0)
       ? row.title
       : 'Untitled';
     const sanitizedTitle = safeTitle.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_').slice(0, 50);
-    const filename = `${sanitizedTitle}_${row.uuid.slice(0, 8)}.md`;
+    const filename = `${sanitizedTitle}_${String(row.uuid).slice(0, 8)}.md`;
     const folder = settings.destinationFolder ? normalizePath(settings.destinationFolder) : '';
     const filePath = folder ? `${folder}/${filename}` : filename;
     return { filePath, folder };
@@ -163,7 +191,7 @@ export class NoteWriterService {
    * @param row Task row from Things3
    * @returns True if the file path is valid, false otherwise
    */
-  private isValidFilePath(filePath: string, row: any): boolean {
+  private isValidFilePath(filePath: string, row: Things3TaskRow): boolean {
     if (!filePath || filePath.indexOf('undefined') !== -1 || filePath.indexOf('null') !== -1) {
       console.error('[NoteWriterService] Skipping file due to invalid filePath:', JSON.stringify(filePath), row);
       return false;
@@ -176,10 +204,9 @@ export class NoteWriterService {
    * @param plugin Obsidian plugin instance
    * @param filePath File path string
    * @param content Note content
-   * @param row Task row from Things3
    * @returns True if the file was created or overwritten, false otherwise
    */
-  private async createFile(plugin: Plugin, filePath: string, content: string, row: any): Promise<boolean> {
+  private async createFile(plugin: Plugin, filePath: string, content: string): Promise<boolean> {
     try {
       const existing = plugin.app.vault.getAbstractFileByPath(filePath);
       if (existing && existing instanceof TFile) {

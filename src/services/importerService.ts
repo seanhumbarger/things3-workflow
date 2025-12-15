@@ -56,10 +56,8 @@ import { CacheService } from './cacheService';
  * Errors and important events are logged to the console. If the database cannot be opened, the import is aborted.
  */
 export async function runImporter(plugin: Plugin) {
-
   // Obsidian plugin settings
-  const settings = (plugin as any).settings as Things3WorkflowSettings;
-
+  const settings = (plugin as unknown as { settings: Things3WorkflowSettings }).settings;
   // Connect to Things3 database
   const dbPathHelper = new DbPathService(settings.databasePath);
   const dbPath = dbPathHelper.dbPath;
@@ -70,22 +68,19 @@ export async function runImporter(plugin: Plugin) {
     console.error('[Things3 Workflow] Failed to open database.');
     return;
   }
-
   const pluginCache = new CacheService(plugin);
   await pluginCache.load();
-
   try {
     // Interact with Things3 data
     const thingsService = new Things3Service();
     const rows = thingsService.getTasks(db, settings, pluginCache);
-
     // Write the notes to Obsidian
     const noteWriter = new NoteWriterService();
     for (const row of rows) {
       await noteWriter.writeNote(plugin, row, settings, db, pluginCache, thingsService);
     }
     // --- Save the modified database back to disk ---
-    const dbBuffer = (db as any).export() as Uint8Array;
+    const dbBuffer = (db as unknown as { export: () => Uint8Array }).export();
     fs.writeFileSync(dbPath, dbBuffer);
     // console.log('[Things3 Workflow] Database changes saved to disk.');
   } finally {
@@ -102,7 +97,7 @@ export async function runImporter(plugin: Plugin) {
  * @param plugin The parent Obsidian plugin instance
  */
 export async function rebuildCacheOnly(plugin: Plugin) {
-  const settings = (plugin as any).settings as Things3WorkflowSettings;
+  const settings = (plugin as unknown as { settings: Things3WorkflowSettings }).settings;
   const dbPathHelper = new DbPathService(settings.databasePath);
   const dbPath = dbPathHelper.dbPath;
   const sqliteProvider = new SqliteProvider();

@@ -26,11 +26,11 @@ clean:
 
 # Lint the code
 lint:
-	$(NPM) run lint
+	npx eslint src/
 
 # Lint and auto-fix the code
 lint-fix:
-	npx eslint --fix src/ tests/
+	npx eslint --fix src/
 
 # Build the plugin
 build:
