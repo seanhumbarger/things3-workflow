@@ -203,7 +203,7 @@ export class DbPathService {
       .filter(d => d.startsWith('JLMPQHK86H.com.culturedcode.ThingsMac'));
     // console.log('[DbPathService] Fallback: found Things group containers:', thingsDirs);
     if (thingsDirs.length === 0) {
-      console.error('[DbPathService] No Things group container found');
+      console.error('[DbPathService] No things3 group container found');
       return undefined;
     }
     // Use the first matching group container (usually only one)

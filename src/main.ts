@@ -42,9 +42,13 @@ export default class Things3WorkflowPlugin extends Plugin {
     this.addCommand({
       id: 'run-things-importer',
       name: 'Import',
-      callback: () => {
-        // console.log('[Things3 Workflow] Command palette invoked');
-        runImporter(this);
+      callback: async () => {
+        try {
+          await runImporter(this);
+          new Notice('Things3 import complete!');
+        } catch (err) {
+          new Notice('Import failed: ' + (err instanceof Error ? err.message : String(err)));
+        }
       },
     });
     this.addCommand({
@@ -54,7 +58,7 @@ export default class Things3WorkflowPlugin extends Plugin {
         const cache = new CacheService(this);
         await cache.load();
         await cache.clear();
-        new Notice('Things3 Workflow cache cleared!');
+        new Notice('Things3 workflow cache cleared!');
       },
     });
     this.addCommand({
@@ -63,7 +67,7 @@ export default class Things3WorkflowPlugin extends Plugin {
       callback: async () => {
         const { rebuildCacheOnly } = await import('./services/importerService');
         await rebuildCacheOnly(this);
-        new Notice('Things3 Workflow cache rebuilt!');
+        new Notice('Things3 workflow cache rebuilt!');
       },
     });
     // Optionally, schedule background import every 30 minutes
