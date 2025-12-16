@@ -41,8 +41,9 @@
 
 .things3wf-coffee-row {
   display: flex;
-  justify-content: left;
-  margin: 1em 0 2em 0;
+  align-items: center;
+  gap: 1em;
+  margin-bottom: 1em;
 }
 
 .things3wf-coffee-btn {
@@ -87,4 +88,24 @@ body.theme-light .things3wf-github-btn {
 }
 body.theme-light .things3wf-github-btn:hover {
   background: #2d3237;
+}
+
+/* Layout for meta info row */
+.things3wf-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5em;
+}
+.things3wf-meta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+.things3wf-meta-right {
+  display: flex;
+  gap: 1em;
+}
+.things3wf-link {
+  text-decoration: underline;
 }

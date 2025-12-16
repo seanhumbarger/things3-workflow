@@ -84,40 +84,31 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     containerEl.createEl('h1', { text: PLUGIN_NAME });
 
     // --- Plugin meta info section ---
-    const metaDiv = containerEl.createDiv();
-    metaDiv.style.display = 'flex';
-    metaDiv.style.alignItems = 'center';
-    metaDiv.style.justifyContent = 'space-between';
-    metaDiv.style.marginBottom = '0.5em';
+    const metaDiv = containerEl.createDiv({ cls: 'things3wf-meta-row' });
 
     // Author and version
-    const leftMeta = metaDiv.createDiv();
-    leftMeta.style.display = 'flex';
-    leftMeta.style.flexDirection = 'column';
-    leftMeta.style.gap = '0.2em';
+    const leftMeta = metaDiv.createDiv({ cls: 'things3wf-meta-left' });
     leftMeta.createEl('span', { text: `by ${PLUGIN_AUTHOR}`, cls: 'plugin-author' });
     leftMeta.createEl('span', { text: `Version: ${this.plugin.manifest.version}`, cls: 'plugin-version' });
 
     // Quick links
-    const rightMeta = metaDiv.createDiv();
-    rightMeta.style.display = 'flex';
-    rightMeta.style.gap = '1em';
+    const rightMeta = metaDiv.createDiv({ cls: 'things3wf-meta-right' });
     // Documentation link
     const docLink = rightMeta.createEl('a', {
       text: 'Documentation',
       href: PLUGIN_DOCS_URL,
+      cls: 'things3wf-link',
     });
     docLink.target = '_blank';
     docLink.rel = 'noopener';
-    docLink.style.textDecoration = 'underline';
     // Issue tracker link
     const issueLink = rightMeta.createEl('a', {
       text: 'Report Issue',
       href: PLUGIN_ISSUE_URL,
+      cls: 'things3wf-link',
     });
     issueLink.target = '_blank';
     issueLink.rel = 'noopener';
-    issueLink.style.textDecoration = 'underline';
 
     // --- Short description ---
     const descDiv = containerEl.createDiv({ cls: 'things3wf-desc' });
@@ -141,7 +132,8 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     });
     githubLink.target = '_blank';
     githubLink.rel = 'noopener';
-    githubLink.style.marginLeft = '1em'; // Only margin, as this is layout, not theme
+    // Add margin via class, not style
+    githubLink.addClass('things3wf-github-btn-margin');
 
     // --- Database Section ---
     new Setting(containerEl).setName('Database').setHeading();
