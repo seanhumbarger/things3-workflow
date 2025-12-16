@@ -48,7 +48,7 @@ describe('NoteWriterService', () => {
     const writer = new NoteWriterService();
     await writer.writeNote(
       plugin,
-      { uuid: 'abc', title: 'Test', notes: 'Body', tags: 'tag1,tag2', project: 'proj', area: 'area', creationDate: 1000, startDate: 1000, stopDate: 1000, deadline: 1000, status: 'open' },
+      { uuid: 'abc', title: 'Test', notes: 'Body', tags: 'tag1,tag2', project: 'proj', area: 'area', creationDate: 1000, startDate: 1000, stopDate: 1000, deadline: 1000, status: 0, project_area: '' },
       settings,
       db,
       pluginCache,
@@ -62,7 +62,7 @@ describe('NoteWriterService', () => {
 
   it('does not write note if filePath is invalid', async () => {
     const writer = new NoteWriterService();
-    const row = { uuid: 'abc', title: '', notes: '', tags: '', project: '', area: '', creationDate: 1000, startDate: 1000, stopDate: 1000, deadline: 1000, status: 'open' };
+    const row = { uuid: 'abc', title: '', notes: '', tags: '', project: '', area: '', creationDate: 1000, startDate: 1000, stopDate: 1000, deadline: 1000, status: 0, project_area: '' };
     const { filePath } = writer['prepareFilePath'](row, settings);
     console.log('Test filePath for empty title:', filePath);
     await writer.writeNote(

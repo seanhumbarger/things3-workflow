@@ -193,16 +193,56 @@ export class DbPathService {
 
   /**
    * Attempts to resolve a usable dbPath from the default fallback location.
+   * Dynamically finds the correct ThingsData-* directory and uses the most recently modified valid database.
    * @returns The resolved dbPath or undefined
    */
   private _resolveFromFallback(): string | undefined {
-    const fallback = path.join(os.homedir(), 'Library', 'Group Containers', 'JLMPQHK86H.com.culturedcode.ThingsMac', 'ThingsData-UTC1Z', 'Things Database.thingsdatabase', 'main.sqlite');
-    if (this._isUsableSQLiteFile(fallback)) {
-      // console.log('[DbPathService] Using fallback dbPath:', fallback);
-      return fallback;
-    } else {
-      console.error('[DbPathService] Fallback dbPath not valid or lacks permission:', fallback);
+    const groupContainers = path.join(os.homedir(), 'Library', 'Group Containers');
+    // console.log('[DbPathService] Fallback: groupContainers path:', groupContainers);
+    const thingsDirs = fs.readdirSync(groupContainers)
+      .filter(d => d.startsWith('JLMPQHK86H.com.culturedcode.ThingsMac'));
+    // console.log('[DbPathService] Fallback: found Things group containers:', thingsDirs);
+    if (thingsDirs.length === 0) {
+      console.error('[DbPathService] No Things group container found');
       return undefined;
     }
+    // Use the first matching group container (usually only one)
+    const thingsContainer = path.join(groupContainers, thingsDirs[0]);
+    // console.log('[DbPathService] Fallback: using thingsContainer:', thingsContainer);
+    const subdirs = fs.readdirSync(thingsContainer).filter(d => d.startsWith('ThingsData-'));
+    // console.log('[DbPathService] Fallback: found ThingsData-* subdirs:', subdirs);
+    if (subdirs.length === 0) {
+      console.error('[DbPathService] No ThingsData-* subdirs found in fallback');
+      return undefined;
+    }
+    // Log all candidate main.sqlite paths (now with the extra directory)
+    const candidates: string[] = [];
+    for (const subdir of subdirs) {
+      const thingsDbDir = path.join(thingsContainer, subdir, 'Things Database.thingsdatabase');
+      if (fs.existsSync(thingsDbDir) && fs.statSync(thingsDbDir).isDirectory()) {
+        const candidate = path.join(thingsDbDir, 'main.sqlite');
+        candidates.push(candidate);
+        // console.log('[DbPathService] Fallback: candidate main.sqlite path:', candidate);
+      }
+    }
+    // Use the same logic as _resolveBestThingsDataDir to pick the best one
+    // But pass the full candidate paths and parent dir
+    let bestPath: string | undefined;
+    let bestTime = 0;
+    for (const candidate of candidates) {
+      if (this._isUsableSQLiteFile(candidate)) {
+        const mtime = fs.statSync(candidate).mtimeMs;
+        if (mtime > bestTime) {
+          bestTime = mtime;
+          bestPath = candidate;
+        }
+      }
+    }
+    if (bestPath) {
+      console.log('[DbPathService] Fallback: selected dbPath:', bestPath);
+      return bestPath;
+    }
+    console.error('[DbPathService] Could not resolve valid main.sqlite in fallback ThingsData-* directories');
+    return undefined;
   }
 }
