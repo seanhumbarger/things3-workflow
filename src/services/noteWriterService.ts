@@ -31,7 +31,7 @@ export interface IThings3Service {
  *   - Customizable section headers for note, details, and checklist.
  * - Handles file/folder creation and overwriting in the Obsidian vault.
  * - Updates the plugin cache to track imported tasks and prevent duplicates.
- * - Converts Core Data absolute dates to ISO strings for frontmatter.
+ * - Converts Things3 dates (Unix or packed) to ISO strings for frontmatter.
  *
  * Usage:
  *   const noteWriter = new NoteWriterService();
@@ -88,13 +88,13 @@ export class NoteWriterService {
       tags = tags.concat(row.tags.split(',').map((t: string) => t.trim()).filter(Boolean));
     }
     if (settings.includeProjectAsTag && row.project) {
-      tags.push(row.project);
+      tags.push(`${row.project}`);
     }
     if (settings.includeAreaAsTag) {
       if (row.area) {
-        tags.push(row.area);
+        tags.push(`${row.area}`);
       } else if (row.project_area) {
-        tags.push(row.project_area);
+        tags.push(`${row.project_area}`);
       }
     }
     // Add custom tags from settings
@@ -104,18 +104,18 @@ export class NoteWriterService {
     // Remove duplicates and empty
     tags = Array.from(new Set(tags)).filter(Boolean);
     const thingsLink = `things:///show?id=${row.uuid}`;
-    const thingsCreatedDate = coreDataAbsoluteToISO(row.creationDate ?? undefined) || coreDataAbsoluteToISO(row.startDate ?? undefined) || '';
-    const deadlineISO = coreDataAbsoluteToISO(row.deadline ?? undefined);
-    const startDateISO = coreDataAbsoluteToISO(row.startDate ?? undefined);
-    const endDateISO = coreDataAbsoluteToISO(row.stopDate ?? undefined);
+    const createdISO = convertThingsDate(row.creationDate ?? undefined) || convertThingsDate(row.startDate ?? undefined) || '';
+    const startISO = convertThingsDate(row.startDate ?? undefined) || '';
+    const endISO = convertThingsDate(row.stopDate ?? undefined) || '';
+    const deadlineISO = convertThingsDate(row.deadline ?? undefined) || '';
     const t3Status = row.status || '';
     const frontmatter = [
       '---',
       `t3_uuid: ${row.uuid}`,
       `t3_link: ${thingsLink}`,
-      `t3_created_date: ${thingsCreatedDate}`,
-      `t3_start_date: ${startDateISO}`,
-      `t3_end_date: ${endDateISO}`,
+      `t3_created_date: ${createdISO}`,
+      `t3_start_date: ${startISO}`,
+      `t3_end_date: ${endISO}`,
       `t3_deadline: ${deadlineISO}`,
       `t3_status: ${t3Status}`,
       `tags: [${tags.map(t => `'#${t}'`).join(', ')}]`,
@@ -152,11 +152,18 @@ export class NoteWriterService {
     row: Things3TaskRow,
     settings: Things3WorkflowSettings
   ): { filePath: string; folder: string } {
+    // Get the date string in YYYYMMDD format from creationDate or startDate
+    let dateStr = '';
+    if (row.creationDate) {
+      dateStr = getYYYYMMDD(row.creationDate);
+    } else if (row.startDate) {
+      dateStr = getYYYYMMDD(row.startDate);
+    }
     const safeTitle = (row.title && row.title.trim().length > 0)
       ? row.title
       : 'Untitled';
     const sanitizedTitle = safeTitle.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, '_').slice(0, 50);
-    const filename = `${sanitizedTitle}_${String(row.uuid).slice(0, 8)}.md`;
+    const filename = `${dateStr ? dateStr + '_' : ''}${sanitizedTitle}_${String(row.uuid).slice(0, 8)}.md`;
     const folder = settings.destinationFolder ? normalizePath(settings.destinationFolder) : '';
     const filePath = folder ? `${folder}/${filename}` : filename;
     return { filePath, folder };
@@ -225,16 +232,35 @@ export class NoteWriterService {
 }
 
 /**
- * Converts a Core Data absolute date (seconds since 2001-01-01T00:00:00Z) to an ISO string.
- * @param abs Absolute date as number or string
- * @returns ISO date string or empty string if invalid
+ * Converts a Things3 date (Unix timestamp or packed integer) to an ISO string.
+ * - Unix (large/float): seconds since 1970-01-01, converted to full ISO.
+ * - Packed (small int): year <<16 | month <<12 | day <<7, converted to YYYY-MM-DDT00:00:00.000Z.
+ * @param abs Date value as number or undefined
+ * @returns ISO string or empty if invalid/null
  */
-function coreDataAbsoluteToISO(abs: number | string | undefined): string {
+function convertThingsDate(abs: number | undefined): string {
   if (!abs) return '';
-  const absNum = typeof abs === 'string' ? parseFloat(abs) : abs;
-  if (isNaN(absNum)) return '';
-  // Core Data epoch: 2001-01-01T00:00:00Z
-  const coreDataEpoch = Date.UTC(2001, 0, 1, 0, 0, 0, 0);
-  const ms = coreDataEpoch + absNum * 1000;
-  return new Date(ms).toISOString();
+  if (abs > 1e9 || !Number.isInteger(abs)) {
+    // Unix timestamp
+    const ms = abs * 1000;
+    const d = new Date(ms);
+    return d.toISOString();
+  } else {
+    // Packed: year <<16 | month <<12 | day <<7 (note: bit shifts adjusted)
+    const year = Math.floor(abs / 65536); // >> 16
+    const month = Math.floor((abs % 65536) / 4096); // >> 12 & 15
+    const day = Math.floor((abs % 4096) / 128); // >> 7 & 31
+    if (year < 1900 || year > 2100 || month < 1 || month > 12 || day < 1 || day > 31) return '';
+    return new Date(Date.UTC(year, month - 1, day)).toISOString();
+  }
+}
+
+/**
+ * Converts a Things3 date to YYYYMMDD format.
+ * @param abs Date value as number or undefined
+ * @returns YYYYMMDD string or empty
+ */
+function getYYYYMMDD(abs: number | undefined): string {
+  const iso = convertThingsDate(abs);
+  return iso ? iso.slice(0, 10).replace(/-/g, '') : '';
 }
