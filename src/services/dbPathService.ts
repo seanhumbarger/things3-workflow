@@ -239,7 +239,7 @@ export class DbPathService {
       }
     }
     if (bestPath) {
-      console.log('[DbPathService] Fallback: selected dbPath:', bestPath);
+      // console.log('[DbPathService] Fallback: selected dbPath:', bestPath);
       return bestPath;
     }
     console.error('[DbPathService] Could not resolve valid main.sqlite in fallback ThingsData-* directories');

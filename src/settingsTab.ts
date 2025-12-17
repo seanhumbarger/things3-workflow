@@ -81,7 +81,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl('h1', { text: PLUGIN_NAME });
+    new Setting(containerEl).setName(PLUGIN_NAME).setHeading();
 
     // --- Plugin meta info section ---
     const metaDiv = containerEl.createDiv({ cls: 'things3wf-meta-row' });
@@ -103,7 +103,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     docLink.rel = 'noopener';
     // Issue tracker link
     const issueLink = rightMeta.createEl('a', {
-      text: 'Report Issue',
+      text: 'Report issue',
       href: PLUGIN_ISSUE_URL,
       cls: 'things3wf-link',
     });
@@ -118,7 +118,7 @@ export class Things3WorkflowSettingTab extends PluginSettingTab {
     const coffeeDiv = containerEl.createDiv({ cls: 'things3wf-coffee-row' });
     // Buy Me a Coffee button
     const coffeeLink = coffeeDiv.createEl('a', {
-      text: '☕ Buy Me a Coffee',
+      text: '☕ Buy me a coffee',
       href: PLUGIN_BUYMECOFFEE_URL,
       cls: 'things3wf-coffee-btn',
     });

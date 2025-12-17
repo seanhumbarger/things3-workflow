@@ -39,13 +39,10 @@ export class SqliteProvider {
    *
    * Note: The sql.js typings do not provide a constructable Database type, so we use 'any' here for compatibility.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sql.js typings require 'any' for Database instance
   async openDatabase(dbPath: string, wasmUrl: string): Promise<any> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sql.js typings require 'any' for SqlJsStatic
       this.SQL = await initSqlJs({ locateFile: () => wasmUrl });
       const fileBuffer = fs.readFileSync(dbPath);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- sql.js Database constructor requires 'any' due to missing construct signature in typings
       const db = new (this.SQL as any).Database(fileBuffer);
       // console.log('[SqliteProvider] Database opened with sql.js');
       return db;
