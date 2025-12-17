@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import initSqlJs, { SqlJsStatic } from 'sql.js';
+import initSqlJs, { SqlJsStatic, Database } from 'sql.js';
 import { Plugin, normalizePath } from 'obsidian';
 
 /**
@@ -31,19 +31,17 @@ export class SqliteProvider {
    *
    * @param dbPath Path to the SQLite database file
    * @param wasmUrl URL to the sql-wasm.wasm file (WebAssembly binary for sql.js)
-   * @returns Promise<any> The opened sql.js Database instance (typed as any due to incomplete sql.js typings)
+   * @returns Promise<Database> The opened sql.js Database instance
    *
    * The WASM file is required by sql.js to run SQLite in the browser or in environments like Obsidian plugins.
    * WebAssembly (WASM) is a binary instruction format that allows running high-performance code (like SQLite) in JavaScript environments.
    * The wasmUrl should point to the location of the sql-wasm.wasm file bundled with your plugin.
-   *
-   * Note: The sql.js typings do not provide a constructable Database type, so we use 'any' here for compatibility.
    */
-  async openDatabase(dbPath: string, wasmUrl: string): Promise<any> {
+  async openDatabase(dbPath: string, wasmUrl: string): Promise<Database> {
     try {
       this.SQL = await initSqlJs({ locateFile: () => wasmUrl });
       const fileBuffer = fs.readFileSync(dbPath);
-      const db = new (this.SQL as any).Database(fileBuffer);
+      const db = new this.SQL.Database(fileBuffer);
       // console.log('[SqliteProvider] Database opened with sql.js');
       return db;
     } catch (err) {
