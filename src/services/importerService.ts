@@ -119,7 +119,7 @@ export async function rebuildCacheOnly(plugin: Plugin) {
       });
     }
     await pluginCache.save();
-    console.log('[Things3 Workflow] Cache rebuilt with', rows.length, 'tasks.');
+    // console.log('[Things3 Workflow] Cache rebuilt with', rows.length, 'tasks.');
   } finally {
     db.close();
   }

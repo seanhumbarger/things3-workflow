@@ -93,7 +93,7 @@ export class DbPathService {
     try {
       fs.accessSync(filePath, fs.constants.R_OK);
       return true;
-    } catch (e) {
+    } catch (_) {
       console.error('[DbPathService] No read permission for:', filePath);
       return false;
     }

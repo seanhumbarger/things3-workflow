@@ -46,7 +46,7 @@ export class SqliteProvider {
       return db;
     } catch (err) {
       console.error('[SqliteProvider] failed to open database with sql.js:', err);
-      throw new Error('[SqliteProvider] failed to open database with sql.js: ' + (err instanceof Error ? err.message : err));
+      throw new Error('[SqliteProvider] failed to open database with sql.js: ' + (err instanceof Error ? err.message : String(err)));
     }
   }
 

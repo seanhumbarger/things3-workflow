@@ -70,7 +70,7 @@ export class CacheService {
       } else {
         this.cache = {};
       }
-    } catch (e) {
+    } catch (_) {
       this.cache = {};
     }
   }
