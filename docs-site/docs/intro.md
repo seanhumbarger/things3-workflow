@@ -31,7 +31,7 @@ For installation, configuration, and usage, see the sections below.
 
 ## Configuration Settings
 
-![Configuration Settings](../static/img/plugin-settings.png)
+![Configuration Settings](/img/plugin-settings.png)
 
 | Setting Name                | Description                                                      | Possible Values / Format                |
 |-----------------------------|------------------------------------------------------------------|-----------------------------------------|
