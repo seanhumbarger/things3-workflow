@@ -74,3 +74,5 @@ With filters:
 - Area Filters: `Marketing`
 
 Only "Update site" will be imported, because it matches all three filters.
+
+This plugin is licensed under the MIT License. See [LICENSE](https://github.com/seanhumbarger/things3-workflow/blob/main/LICENSE).
