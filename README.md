@@ -3,8 +3,56 @@
 An Obsidian plugin for importing tasks from a Things3 SQLite database into Obsidian notes. It supports configurable 
 filters for tags, projects, and areas, and tracks imported items in a local cache to prevent duplicate imports.
 
+🎥 [Demo Video](https://youtu.be/xILB4gPuxZY?si=dB1whdF2rAKb4KAc) 
+
 [![GitHub license](https://img.shields.io/github/license/seanhumbarger/things3-workflow)](https://github.com/seanhumbarger/things3-workflow/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/seanhumbarger/things3-workflow)](https://github.com/seanhumbarger/things3-workflow/releases)
+
+## Installation
+
+You can install the Things3 Workflow plugin directly from within Obsidian using the Community Plugins feature:
+
+1. Open Obsidian.
+2. Go to **Settings** (the gear icon in the lower left).
+3. Click on **Community plugins** in the sidebar.
+4. Click **Browse** and search for `Things3 Workflow`.
+5. Click **Install** next to the plugin.
+6. After installation, click **Enable** to activate the plugin.
+
+## Configuration Settings
+
+![Configuration Settings](docs-site/static/img/plugin-settings.png)
+
+| Setting Name                | Description                                                      | Possible Values / Format                |
+|-----------------------------|------------------------------------------------------------------|-----------------------------------------|
+| Things3 Database Path       | Path to Things3 SQLite database                                  | File path (auto-detected on macOS)      |
+| Tag Filters                 | Filter tasks by tags                                             | Comma-separated list (e.g. tag1,tag2)   |
+| Project Filters             | Filter tasks by projects                                         | Comma-separated list (e.g. proj1,proj2) |
+| Area Filters                | Filter tasks by areas                                            | Comma-separated list (e.g. area1,area2) |
+| Custom Tags                 | Add custom tags to imported notes                                | Comma-separated list                    |
+| Note Headers                | Customize section headers (Note, Detail, Checklist)              | Text                                    |
+| Add Project/Area as Tags    | Add project and area as tags on import                           | Boolean (true/false)                    |
+| Overwrite Handling          | Overwrite notes if deleted but cache is missing                  | Boolean (true/false)                    |
+
+**How Tag, Project, and Area Filters Work Together**
+
+- You can specify one or more values for each filter (comma-separated).
+- A task must match _all_ specified filters to be imported (logical AND).
+- For example, if you set Tag Filters to `work,urgent`, Project Filters to `Website`, and Area Filters to `Marketing`, only tasks that have at least one of the specified tags **and** belong to the `Website` project **and** are in the `Marketing` area will be imported.
+
+**Example:**
+| Task Name      | Tags         | Project   | Area      |
+|---------------|--------------|-----------|-----------|
+| Update site   | work,urgent  | Website   | Marketing |
+| Write blog    | writing      | Blog      | Marketing |
+| Fix bug       | work         | Website   | Dev       |
+
+With filters:
+- Tag Filters: `work,urgent`
+- Project Filters: `Website`
+- Area Filters: `Marketing`
+
+Only "Update site" will be imported, because it matches all three filters.
 
 ## Description
 
@@ -29,18 +77,6 @@ plugin development, including TypeScript, ESLint for code quality, and esbuild f
 - **Plugin Cache**: Prevents duplicate imports and allows clearing or rebuilding the cache from the command palette.
 - **Overwrite Handling**: If a note is deleted but the cache is missing, the plugin will overwrite the file on next import.
 - **Desktop-Only**: Optimized for Obsidian's desktop app, with no mobile support.
-
-## Installation
-
-1. **Via Obsidian Community Plugins** (Recommended):
-    - Open Obsidian.
-    - Go to **Settings > Community plugins**.
-    - Search for "Things3 Workflow".
-    - Install and enable the plugin.
-
-**Prerequisites**:
-- Obsidian version 0.15.0 or higher.
-- Things3 installed with an accessible SQLite database.
 
 ## Usage
 
